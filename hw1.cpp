@@ -50,21 +50,20 @@ void Stock::add_stock(int size){
             Node *current = head;
             Node *next = current->next;
             while(current){
-                if(size == current->size){
+                if(size == current->size)
                     current->quantity++;
-                }else if(size < next->size){
+                else if(!next || size < next->size){
+                    Node *tmp = current->next;
                     current->next = new Node;
                     current->next->size = size;
                     current->next->quantity = 1;
-                    current->next->next = next;
-                    return;
+                    current->next->next = tmp;
                 }else{
                     current = next;
                     next = current->next;
                 }
             }
         } 
-
     }
 
 }
@@ -74,7 +73,7 @@ void Stock::sell(int size){
     Node *next = current->next;
     if(size < current->size){
         cout << "NO_STOCK" << endl;
-    }else if{size == current->size}{
+    }else if(size == current->size){
         if(current->quantity == 1){
             head = next;
             delete current;
@@ -83,7 +82,7 @@ void Stock::sell(int size){
     }else{
         while(next){
             if(next->size == size){
-                if(next->qauntity == 1){
+                if(next->quantity == 1){
                     Node *tmp = next;
                     current->next = next->next;
                     delete next;
@@ -128,7 +127,31 @@ void Stock::clear(){
 }
 
 
-int main(){
+int main(int argc, char *argv[]){
+ 
+ 
+ 
+ 
+ 
+ 
+    // Stock myStock;
+    // myStock.create();
+    // char *filename = "input.txt";
+    // fstream file(*filename);
+    // if(file.is_open()){
+    //     int input;
+    //     while(!file.eof()){
+    //         file >> input;
+    //         if(input == 0)
+    //             myStock.current_stock();
+    //         else if(input < 0)
+    //             myStock.sell(-input);
+    //         else
+    //             myStock.add_stock(input);
+    //     }
+    // }else
+    //     cout << "File " << filename << "does not exist or cannot be opened" << endl;
+    
 
 
     return 0;
