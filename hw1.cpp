@@ -16,7 +16,7 @@ using namespace std;
 
 struct Node{
     int size;
-    int quant;
+    int quantity;
     Node *next;
 };
 
@@ -37,25 +37,25 @@ void Stock::add_stock(int size){
     if(!head){
         head = new Node;
         head->size = size;
-        head->quant = 1;
+        head->quantity = 1;
         head->next = NULL;
     }else{
         if(size < head->size){
             Node *tmp = head;
             head = new Node;
             head->size = size;
-            head->quant = 1;
+            head->quantity = 1;
             head->next = tmp;
         }else{
             Node *current = head;
             Node *next = current->next;
             while(current){
                 if(size == current->size){
-                    current->quant++;
+                    current->quantity++;
                 }else if(size < next->size){
                     current->next = new Node;
                     current->next->size = size;
-                    current->next->quant = 1;
+                    current->next->quantity = 1;
                     current->next->next = next;
                     return;
                 }else{
@@ -71,12 +71,34 @@ void Stock::add_stock(int size){
 
 void Stock::sell(int size){
     Node *current = head;   
-    while(!(head->next)){
-        if(!(current->next))
-        if(current->next->size == size){
-            
+    Node *next = current->next;
+    if(size < current->size){
+        cout << "NO_STOCK" << endl;
+    }else if{size == current->size}{
+        if(current->quantity == 1){
+            head = next;
+            delete current;
+        }else
+            current->quantity--;
+    }else{
+        while(next){
+            if(next->size == size){
+                if(next->qauntity == 1){
+                    Node *tmp = next;
+                    current->next = next->next;
+                    delete next;
+                    return;
+                }else{
+                    next->quantity--;
+                    return;
+                }
+            }
+            current = next;
+            next = current->next;
         }
-
+        if(!next){
+            cout << "NO_STOCK" << endl;
+        }
     }
 
 }
@@ -88,7 +110,7 @@ void Stock::current_stock(){
         return;
     }
     while(current){
-        cout << current->size << ":" << current->quant << endl;    
+        cout << current->size << ":" << current->quantity << endl;    
         current = current->next;
     }
 }
