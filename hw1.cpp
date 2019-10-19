@@ -52,7 +52,7 @@ void Stock::add_stock(int size) {
 			Node *current = head;
 			Node *next = current->next;
 			while (current) {
-				if (size == current->size){
+				if (size == current->size) {
 					current->quantity++;
 					return;
 				}else if (!next || size < next->size) {
@@ -78,7 +78,7 @@ void Stock::sell(int size) {
 		return;
 	}
 	Node *current = head;
-	Node *next = current->next; 
+	Node *next = current->next;
 	if (size < current->size) {
 		cout << "NO_STOCK" << endl;
 	}
@@ -142,35 +142,38 @@ void Stock::clear() {
 
 
 int main(int argc, char *argv[]) {
-	
-	 Stock myStock;
-	 myStock.create();
-	 
-	 fstream file;
-	 
-	 if (argc == 1) 
-		 file.open("input.txt");
-	 else
-		 file.open(argv[1]);
 
-	 if(file.is_open()){
-	     int input;
-	     while(!file.eof()){
-	         file >> input;
-	         if(input == 0)
-	             myStock.current_stock();
-	         else if(input < 0)
-	             myStock.sell(-input);
-	         else
-	             myStock.add_stock(input);
-	     }
-	 }else{
-	     if(argc == 1)
-			 cout << "File input.txt does not exist or cannot be opened." << endl;
-		 else
-			 cout << "File " << argv[1] <<" does not exist or cannot be opened." << endl;
-	 }
-	 myStock.clear();
+	Stock myStock;
+	myStock.create();
+
+	fstream file;
+
+	if (argc == 1)
+		file.open("input.txt");
+	else
+		file.open(argv[1]);
+
+	if (file.is_open()) {
+		int input;
+		while (!file.eof()) {
+			file >> input;
+			if (input == 0)
+				myStock.current_stock();
+			else if (input < 0)
+				myStock.sell(-input);
+			else
+				myStock.add_stock(input);
+			while (file.peek() == '\n' || file.peek() == '\r')
+				file.get();
+		}
+	}
+	else {
+		if (argc == 1)
+			cout << "File input.txt does not exist or cannot be opened." << endl;
+		else
+			cout << "File " << argv[1] << " does not exist or cannot be opened." << endl;
+	}
+	myStock.clear();
 
 	return 0;
 }
