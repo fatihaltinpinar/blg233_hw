@@ -55,7 +55,8 @@ void Stock::add_stock(int size) {
 				if (size == current->size) {
 					current->quantity++;
 					return;
-				}else if (!next || size < next->size) {
+				}
+				else if (!next || size < next->size) {
 					Node *tmp = current->next;
 					current->next = new Node;
 					current->next->size = size;
@@ -127,16 +128,10 @@ void Stock::current_stock() {
 }
 
 void Stock::clear() {
-	if (head) {
-		Node *current = head;
-		Node *next = current->next;
-		while (next) {
-			delete current;
-			current = next;
-			next = current->next;
-		}
-		delete current;
-		head = NULL;
+	while (head) {
+		Node *tmp = head->next;
+		delete head;
+		head = tmp;
 	}
 }
 
