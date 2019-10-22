@@ -117,10 +117,10 @@ void Stock::sell(int size) {
 
 void Stock::current_stock() {
 	Node *current = head;
-	if (!current) {
-		cout << "NO_STOCK" << endl;
+	/*if (!current) {
+		cout << "STOCK_EMPTY" << endl;				/There wasn't a specification about printing stack when there is nothing thus I removed it.
 		return;
-	}
+	}*/
 	while (current) {
 		cout << current->size << ":" << current->quantity << endl;
 		current = current->next;
