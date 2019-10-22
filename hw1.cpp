@@ -30,43 +30,43 @@ struct Stock {
 };
 
 void Stock::create() {
-	head = NULL;
+	head = NULL;					//Empty linked list
 }
 
 void Stock::add_stock(int size) {
-	if (!head) {
+	if (!head) {					//If there is nothing in list, create new node with given shoe size
 		head = new Node;
 		head->size = size;
 		head->quantity = 1;
 		head->next = NULL;
 	}
 	else {
-		if (size < head->size) {
+		if (size < head->size) {	//If given shoe size is smaller than first shoe in the list then create new node with given shoe size
 			Node *tmp = head;
-			head = new Node;
+			head = new Node;		//This new node will be the first of the list.
 			head->size = size;
 			head->quantity = 1;
 			head->next = tmp;
 		}
-		else {
+		else {						//If not iterate over every element
 			Node *current = head;
 			Node *next = current->next;
-			while (current) {
-				if (size == current->size) {
+			while (current) {		//While current != NULL
+				if (size == current->size) {		//Check if current shoe is the same as wanted if yes increment quantity of the node
 					current->quantity++;
 					return;
 				}
-				else if (!next || size < next->size) {
-					Node *tmp = current->next;
-					current->next = new Node;
-					current->next->size = size;
-					current->next->quantity = 1;
+				else if (!next || size < next->size) {			//Add a new node if
+					Node *tmp = current->next;					//!next -> Next node does not exists
+					current->next = new Node;					// OR
+					current->next->size = size;					//Given shoe size is smaller than next node's shoe size. Which means
+					current->next->quantity = 1;				//a new node must be created in between current and next.
 					current->next->next = tmp;
 					return;
 				}
 				else {
-					current = next;
-					next = current->next;
+					current = next;								//otherwise iterate to next current and next pair
+					next = current->next;						//This will not cause any error since we check existence of next in upper if statement
 				}
 			}
 		}
@@ -75,41 +75,39 @@ void Stock::add_stock(int size) {
 
 void Stock::sell(int size) {
 	if (!head) {
-		cout << "NO_STOCK" << endl;
-		return;
-	}
-	Node *current = head;
-	Node *next = current->next;
-	if (size < current->size) {
-		cout << "NO_STOCK" << endl;
-	}
-	else if (size == current->size) {
-		if (current->quantity == 1) {
-			head = next;
-			delete current;
+		cout << "NO_STOCK" << endl;								//If there is nothing in stock print NO_STOCK
+	}else if (size < head->size) {
+		cout << "NO_STOCK" << endl;								//Since list is in ascending order if given shoe is smaller than first item, it
+	}															//does not exists in the list
+	else if (size == head->size) {						
+		if (head->quantity == 1) {								//If shoe that needs to be selled is in this node and quantity is 1 then remove node
+			Node *tmp = head->next;
+			delete head;										
+			head = tmp;											//Set beginning of the list to next one
 		}
 		else
-			current->quantity--;
+			head->quantity--;									//If quantity is bigger than 1 decrease it.
 	}
 	else {
-		while (next) {
-			if (next->size == size) {
-				if (next->quantity == 1) {
-					Node *tmp = next;
-					current->next = next->next;
-					delete next;
+		Node *tail = head;
+		Node *current = tail->next;								//Skip to second element since we already checked first element
+		while (current) {										//Iterate over every node
+			if (current->size == size) {
+				if (current->quantity == 1) {					//Remove node and connect tail to current->next if node's quantity is one
+					tail->next = current->next;
+					delete current;
 					return;
 				}
 				else {
-					next->quantity--;
+					current->quantity--;
 					return;
 				}
 			}
-			current = next;
-			next = current->next;
+			tail = current;
+			current = current->next;
 		}
-		if (!next) {
-			cout << "NO_STOCK" << endl;
+		if (!current) {
+			cout << "NO_STOCK" << endl;							//If iterated over whole stack and nothing is found, (given shoe size is greater than all shoes' available) print NO_STOCK
 		}
 	}
 
@@ -118,10 +116,10 @@ void Stock::sell(int size) {
 void Stock::current_stock() {
 	Node *current = head;
 	/*if (!current) {
-		cout << "STOCK_EMPTY" << endl;				/There wasn't a specification about printing stack when there is nothing thus I removed it.
+		cout << "STOCK_EMPTY" << endl;				//There wasn't a specification about printing stack when there is nothing thus I removed it.
 		return;
 	}*/
-	while (current) {
+	while (current) {								//Iterate over every item and print their size and quantity as "<size>:<quantity>"
 		cout << current->size << ":" << current->quantity << endl;
 		current = current->next;
 	}
@@ -129,41 +127,41 @@ void Stock::current_stock() {
 
 void Stock::clear() {
 	while (head) {
-		Node *tmp = head->next;
-		delete head;
-		head = tmp;
-	}
+		Node *tmp = head->next;		// Store next node
+		delete head;				// Delete head
+		head = tmp;					// Set next node as head
+	}								// Repeat
 }
 
 
 int main(int argc, char *argv[]) {
 
 	Stock myStock;
-	myStock.create();
+	myStock.create();				//Create stack				
 
-	fstream file;
+	fstream file;					//Using fstream for reading from files
 
 	if (argc == 1)
-		file.open("input.txt");
+		file.open("input.txt");		//If the program is runned without any parameters it looks for "input.txt"
 	else
-		file.open(argv[1]);
+		file.open(argv[1]);			//Otherwise it reads inputs from given file name
 
-	if (file.is_open()) {
+	if (file.is_open()) {			//If file can be read
 		int input;
-		while (!file.eof()) {
-			file >> input;
-			if (input == 0)
-				myStock.current_stock();
+		while (!file.eof()) {		//Repeat until end of the file
+			file >> input;			//Take next integer
+			if (input == 0)						
+				myStock.current_stock();			//If input is 0 then print whole stack
 			else if (input < 0)
-				myStock.sell(-input);
+				myStock.sell(-input);				//If input is negative sell that particular shoe with the size given as (input * -1)
 			else
-				myStock.add_stock(input);
+				myStock.add_stock(input);			//If input is positive add stock with size = input
 			while (file.peek() == '\n' || file.peek() == '\r')
-				file.get();
+				file.get();							//Skip \n and \r. To find
 		}
 	}
 	else {
-		if (argc == 1)
+		if (argc == 1)								//If input.txt cannot be found print error messages.
 			cout << "File input.txt does not exist or cannot be opened." << endl;
 		else
 			cout << "File " << argv[1] << " does not exist or cannot be opened." << endl;
