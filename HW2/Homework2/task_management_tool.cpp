@@ -77,7 +77,17 @@ void WorkPlan::create()
 
 void WorkPlan::close()
 {
-	//THIS FUNCTION WILL BE CODED BY YOU
+	head->previous->next = NULL;								// Break circular linked list
+	while (head != NULL) {										// Loop until no day left
+		Task *tmp_day = head->next;								// Store next day's first task's pointer	
+		while (head != NULL) {									// Loop until no task left in that day
+			Task *tmp_counterpart = head->counterpart;			// Store next task of that day.
+			delete head->name;			
+			delete head;
+			head = tmp_counterpart;
+		}
+		head = tmp_day;
+	}
 }
 
 void WorkPlan::add(Task *in_task)
@@ -85,8 +95,8 @@ void WorkPlan::add(Task *in_task)
 	// Create a new task
 	Task *task = new Task;
 	*task = *in_task;
-	task->name = new char(2);
-	task->name = in_task->name;
+	task->name = new char(3);
+	strcpy(task->name, in_task->name);
 
 	if (head == NULL) {
 		head = task;
