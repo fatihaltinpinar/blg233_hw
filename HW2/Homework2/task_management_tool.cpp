@@ -95,14 +95,13 @@ void WorkPlan::add(Task *in_task)
 	// Create a new task
 	Task *task = new Task;
 	*task = *in_task;
-	task->name = new char(3);
+	task->name = new char(strlen(in_task->name) + 1);
 	strcpy(task->name, in_task->name);
-
 	if (head == NULL) {
 		head = task;
-		task->next = head;
-		task->previous = head;
-		task->counterpart = NULL;
+		head->next = head;
+		head->previous = head;
+		head->counterpart = NULL;
 	}
 	else {
 
@@ -111,7 +110,19 @@ void WorkPlan::add(Task *in_task)
 
 Task * WorkPlan::getTask(int day, int time)
 {
-	//THIS FUNCTION WILL BE CODED BY YOU
+	Task *current = head;
+	while (current->day < day)								// Search for day
+		current = current->next;
+	if (current->day != day)								// If the given day does not exists
+		return NULL;
+	else {													// If given day exists then search for the time
+		while (current != NULL && current->time < time)		// Search for time
+			current = current->counterpart;
+		if (current != NULL && current->time == time)		// If the time is correct return the task
+			return current;
+		else
+			return NULL;									// If time is not correct or the no more nodes exists return NULL
+	}
 }
 
 
