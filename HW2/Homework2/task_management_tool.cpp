@@ -92,6 +92,9 @@ void WorkPlan::close()
 
 void WorkPlan::add(Task *in_task)
 {
+	// TODO:
+	// HEAD WILL POINT TO THE SMALLEST DAY!!!!
+	
 	// Create a new task
 	Task *task = new Task;
 	*task = *in_task;
@@ -127,7 +130,79 @@ Task * WorkPlan::getTask(int day, int time)
 
 
 void WorkPlan::checkAvailableNextTimesFor(Task *delayed)	
-{	//THIS FUNCTION WILL BE CODED BY YOU
+{	
+	Task *current_day = head;
+	Task *current_task = head;
+	if (current_day == NULL) {
+		usable_day = delayed->day + 1;
+		usable_time = 8;
+		return;
+	}
+	while (current_day->day < delayed->day && current_day->next != head) {
+		current_day = current_day->next;
+	}
+	
+	if (current_day->day == delayed->day) {
+		current_task = current_day;
+		while (current_task->time <= delayed->time && current_task->counterpart != NULL) 
+			current_task = current_task->counterpart;
+		
+		while (current_task->counterpart != NULL) {
+			if ((current_task->counterpart->time) - (current_task->time) >= 2) {
+				usable_day = current_task->day;
+				usable_time = current_task->time + 1;
+				return;
+			}
+			else 
+				current_task = current_task->counterpart;
+		}
+	}else {
+		while (current_day->next != head) {
+			current_task = current_day;
+			while (current_task->counterpart != NULL) {
+				if ((current_task->counterpart->time) - (current_task->time) >= 2) {
+					usable_day = current_task->day;
+					usable_time = current_task->time + 1;
+					return;
+				}else
+					current_task = current_task->counterpart;
+			}
+			current_day = current_day->next;
+		}
+	}
+	// If available time does not exists
+	current_day = head;
+	while (current_day->day < delayed->day && current_day->next != head) {
+		current_day = current_day->next;
+	}
+	if (current_day->day == delayed->day) {
+		current_task = current_day;
+		while (current_task->counterpart != NULL) {
+			current_task = current_task->next;
+		}
+		if (current_task->time != 16) {
+			usable_time = current_task->time + 1;
+			usable_day = current_task->day;
+			return;
+		}
+		current_day = current_day->next;
+	}
+	else if(current_day->day == (delayed->day + 1)){
+		current_task = current_day;
+		while (current_task->counterpart != NULL)
+			current_task = current_task->counterpart;
+		if (current_task->time != 16) {
+			usable_time = current_task->time + 1;
+			usable_day = current_task->day;
+			return;
+		}
+		current_day = current_day->next;
+	} 
+	else {
+		usable_time = 8;
+		usable_day = delayed->day + 1; // BUG: If day after exists and completely full
+	}
+
 }
 
 void WorkPlan::delayAllTasksOfDay(int day)
