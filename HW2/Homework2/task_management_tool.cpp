@@ -207,7 +207,24 @@ void WorkPlan::checkAvailableNextTimesFor(Task *delayed)
 
 void WorkPlan::delayAllTasksOfDay(int day)
 {
-	//THIS FUNCTION WILL BE CODED BY YOU
+	Task *current = head;
+	while (current->day < day && current->next != head)
+		current = current->next;
+	if (current->day == day) {
+		current->previous->next = current->next;
+		current->next->previous = current->previous;
+
+		while (current != NULL) {
+			Task *tmp = current->counterpart;
+			checkAvailableNextTimesFor(current);
+			add(current);
+			delete current->name;
+			delete current;
+			current = tmp;
+		}
+	}
+	else
+		return;
 }
 
 void WorkPlan::remove(Task *target)
