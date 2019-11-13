@@ -92,22 +92,103 @@ void WorkPlan::close()
 
 void WorkPlan::add(Task *in_task)
 {
-	// TODO:
-	// HEAD WILL POINT TO THE SMALLEST DAY!!!!
-	
-	// Create a new task
 	Task *task = new Task;
-	*task = *in_task;
-	task->name = new char(strlen(in_task->name) + 1);
+	task->day = in_task->day;
+	task->time = in_task->time;
+	task->priority = in_task->priority;
+	task->name = new char[strlen(in_task->name) + 1];
 	strcpy(task->name, in_task->name);
-	if (head == NULL) {
+
+	if (head == NULL) {				// Add if no task exists
 		head = task;
 		head->next = head;
 		head->previous = head;
 		head->counterpart = NULL;
 	}
+	else if (task->day < head->day) {			// Add if the task is earlier than the previous head task.
+		task->next = head;
+		task->previous = head->previous;
+		task->counterpart = NULL;
+		head->previous->next = task;
+		head->previous = task;
+		head = task;
+	}
 	else {
+		Task *current = head;
+		while (current->day < task->day && current->next != head) // Get to the day required by the task in the list.
+			current = current->next;
+		
+		if (current->day != task->day) {						// If there are no task in the same day with 
+			task->next = current;								// Insert task into the circular doubly linked list
+			task->previous = current->previous;
+			task->counterpart = NULL;
+			current->previous->next = task;
+			current->previous = task;
+		}
+		else {													// If there are tasks with the same day
+			Task *current_task = current;
+			if (task->time < current_task->time) {				// If new task is earlier than all other task on that day.
+				task->next = current_task->next;
+				task->previous = current_task->previous;
+				task->counterpart = current_task;
+				if (head == current_task)
+					head = task;
+				current_task->next->previous = task;
+				current_task->previous->next = task;
+				current_task->next = NULL;
+				current_task->previous = NULL;
+			}
+			else if (task->time == current_task->time) {		// If new task has the same time with earliest task on that day
+				if (task->priority > current_task->priority) {	// that is already added to structure check priorities and replace accordingly
+					task->next = current_task->next;
+					task->previous = current_task->previous;
+					current_task->previous->next = task;
+					current_task->next->previous = task;
+					task->counterpart = current_task->counterpart;	
+					if (head == current_task)
+						head = task;
+					checkAvailableNextTimesFor(current_task);	
+					current_task->day = getUsableDay();
+					current_task->time = getUsableTime();
+					add(current_task);
+				}
+				else {
+					checkAvailableNextTimesFor(task);
+					task->day = getUsableDay();
+					task->time = getUsableTime();
+					add(task);
+				}
+			}
+			else {
+				Task *prev_task = NULL;
+				while (current_task->time < task->time && current != NULL) {
+					prev_task = current_task;
+					current_task = current_task->counterpart;
+				}
 
+				if (current_task != NULL && current_task->time == task->time) {
+					if (task->priority > current_task->priority) {
+						prev_task->counterpart = task;
+						task->counterpart = current_task->counterpart;
+						checkAvailableNextTimesFor(current_task);
+						current_task->day = getUsableDay();
+						current_task->time = getUsableTime();
+						add(current_task);
+					}
+					else {
+						checkAvailableNextTimesFor(task);
+						task->day = getUsableDay();
+						task->time = getUsableTime();
+						add(task);
+					}
+				}
+				else {
+					prev_task->counterpart = task;
+					task->counterpart = current_task;
+				}
+
+			}							
+		}
 	}
 } 
 
