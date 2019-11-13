@@ -306,7 +306,46 @@ void WorkPlan::delayAllTasksOfDay(int day)
 
 void WorkPlan::remove(Task *target)
 {
-	
+	Task *prev = head->previous;
+	Task *current = head;
+	while (current->day < target->day && current->next != head) {
+		prev = current;
+		current = current->next;
+	}
+	if (current->day == target->day) {
+		while (current != target && current->counterpart != NULL) {
+			prev = current;
+			current = current->counterpart;
+		}
+		if (current == target) {
+			if (target->next != NULL) { // If target task is the first task of that day
+				if (head == current) {
+					if (current->counterpart != NULL)
+						head = current->counterpart;
+					else
+						head = current->next;
+				}
+				if (current->counterpart != NULL) {
+					prev->next = current->counterpart;
+					current->next->previous = current->counterpart;
+					current->counterpart->next = current->next;
+					current->counterpart->previous = prev;
+					
+				}
+				else {
+					prev->next = current->next;
+					current->next->previous = prev;
+				}
+					
+			}
+			else {
+				prev->counterpart = target->counterpart;
+			}
+			delete target->name;
+			delete target;
+		}
+	}
+	return;
 }
 
 bool WorkPlan::checkCycledList()
