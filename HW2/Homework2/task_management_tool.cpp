@@ -330,7 +330,6 @@ void WorkPlan::remove(Task *target)
 					current->next->previous = current->counterpart;
 					current->counterpart->next = current->next;
 					current->counterpart->previous = prev;
-					
 				}
 				else {
 					prev->next = current->next;
