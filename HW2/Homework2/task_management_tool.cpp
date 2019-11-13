@@ -169,6 +169,8 @@ void WorkPlan::add(Task *in_task)
 				if (current_task != NULL && current_task->time == task->time) {
 					if (task->priority > current_task->priority) {
 						prev_task->counterpart = task;
+						task->next = NULL;
+						task->previous = NULL;
 						task->counterpart = current_task->counterpart;
 						checkAvailableNextTimesFor(current_task);
 						current_task->day = getUsableDay();
@@ -184,6 +186,8 @@ void WorkPlan::add(Task *in_task)
 				}
 				else {
 					prev_task->counterpart = task;
+					task->next = NULL;
+					task->previous = NULL;
 					task->counterpart = current_task;
 				}
 
@@ -253,37 +257,29 @@ void WorkPlan::checkAvailableNextTimesFor(Task *delayed)
 	}
 	// If available time does not exists
 	current_day = head;
-	while (current_day->day < delayed->day && current_day->next != head) {
+	while (current_day->day < delayed->day && current_day->next != head) 
 		current_day = current_day->next;
-	}
 	if (current_day->day == delayed->day) {
 		current_task = current_day;
-		while (current_task->counterpart != NULL) {
-			current_task = current_task->next;
-		}
-		if (current_task->time != 16) {
-			usable_time = current_task->time + 1;
-			usable_day = current_task->day;
-			return;
-		}
-		current_day = current_day->next;
-	}
-	else if(current_day->day == (delayed->day + 1)){
-		current_task = current_day;
-		while (current_task->counterpart != NULL)
+		while (current_task->counterpart != NULL) 
 			current_task = current_task->counterpart;
-		if (current_task->time != 16) {
+
+		if (current_task->time < 16) {
 			usable_time = current_task->time + 1;
 			usable_day = current_task->day;
 			return;
 		}
-		current_day = current_day->next;
-	} 
-	else {
+	}else if((current_day->next->day) - (current_day->day) >= 2 || current_day->next == head){
+		usable_day = current_day->day + 1;
 		usable_time = 8;
-		usable_day = delayed->day + 1; // BUG: If day after exists and completely full
+		return;
 	}
-
+	else {
+		Task temp;
+		temp.day = current_day->day + 1;
+		temp.time = 8;
+		checkAvailableNextTimesFor(&temp);
+	}
 }
 
 void WorkPlan::delayAllTasksOfDay(int day)
@@ -310,7 +306,7 @@ void WorkPlan::delayAllTasksOfDay(int day)
 
 void WorkPlan::remove(Task *target)
 {
-	//THIS FUNCTION WILL BE CODED BY YOU
+	
 }
 
 bool WorkPlan::checkCycledList()
