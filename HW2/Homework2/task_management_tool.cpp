@@ -273,39 +273,51 @@ void WorkPlan::checkAvailableNextTimesFor(Task *delayed)
         current_day = current_day->next;
     }
 
-    while (current_day != head) {       // Check every day until we get back to head for available times
-        current_task = current_day;
-        if(current_task->time > 8){     // If first day of the task starts at a time greater than 8, task can be
-            usable_day = current_task->day; // delayed to this day at 8 am
-            usable_time = 8;
-            return;
-        }
-        while (current_task->counterpart != NULL) { // Otherwise look for available times between tasks in counterpart
-            if ((current_task->counterpart->time) - (current_task->time) >= 2) {
-                usable_day = current_task->day;
-                usable_time = current_task->time + 1;
+    do{       // Check every day until we get back to head for available times
+        if(current_day->day > delayed->day){
+            current_task = current_day;
+            if(current_task->time > 8){     // If first day of the task starts at a time greater than 8, task can be
+                usable_day = current_task->day; // delayed to this day at 8 am
+                usable_time = 8;
                 return;
-            }else
-                current_task = current_task->counterpart;
+            }
+            while (current_task->counterpart != NULL) { // Otherwise look for available times between tasks in counterpart
+                if ((current_task->counterpart->time) - (current_task->time) >= 2) {
+                    usable_day = current_task->day;
+                    usable_time = current_task->time + 1;
+                    return;
+                } else
+                    current_task = current_task->counterpart;
+            }
         }
         current_day = current_day->next;
-    }
+    }while (current_day != head);
 
 
     current_day = head; // If available time is not found we need to find the first non allocated time.
     while (current_day->day < delayed->day && current_day->next != head)
         current_day = current_day->next;   // Iterate until current_day has greater or equal day to delayed one.
-    while (current_day != head){      // Iterate until the end
-        current_task = current_day;
-        while(current_task->counterpart != NULL)
-            current_task = current_task->counterpart;   // Get to end of the day
-        if(current_task->time < 16){                    // If there last task of the day is on an hour lesser than 16
-            usable_time = current_task->time + 1;       // return this as the available time for the task.
-            usable_day = current_task->day;
-            return;
+    do{      // Iterate until the end
+        if(current_day->day > delayed->day){
+            current_task = current_day;
+            while(current_task->counterpart != NULL)
+                current_task = current_task->counterpart;   // Get to end of the day
+            if(current_task->time < 16){                    // If there last task of the day is on an hour lesser than 16
+                usable_time = current_task->time + 1;       // return this as the available time for the task.
+                usable_day = current_task->day;
+                return;
+            }
         }
         current_day = current_day->next;
-    }
+    }while (current_day != head);
+
+    // If nothing else works delay task to day right after the last one that has tasks in it.
+
+    if(head->previous->day > delayed->day)
+        usable_day = head->previous->day + 1;
+    else
+        usable_day = delayed->day + 1;
+    usable_time = 8;
 }
 
 void WorkPlan::delayAllTasksOfDay(int day)
@@ -314,6 +326,9 @@ void WorkPlan::delayAllTasksOfDay(int day)
     while (current->day < day && current->next != head)
         current = current->next;                //First first task of the day which requires to be delayed is found
     if (current->day == day) {                  // If found
+        if(current == head)
+            head = head->next;
+
         current->previous->next = current->next;    // Remove this day completely from the structure so tasks in this day
         current->next->previous = current->previous;    // cannot be delayed into this day again
 

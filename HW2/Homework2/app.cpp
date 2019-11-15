@@ -1,9 +1,8 @@
 /* @Author
  * Student Name: Fatih Altınpınar
  * Student ID: 150180707
- * Date: 13.11.2019
+ * Date: 15.11.2019
  */
-
 /*
 PLEASE DO NOT CHANGE THIS FILE
 */
@@ -16,6 +15,8 @@ PLEASE DO NOT CHANGE THIS FILE
 #include <fstream>
 #include <ctype.h>
 #include <bits/stdc++.h>
+#include <chrono>
+#include <thread>
 
 #define strnicmp strncasecmp
 
@@ -69,13 +70,14 @@ int main(int argc, char* argv[]){
         end = perform_operation(choice);
     }
     workplan.close();
+    this_thread::sleep_for(chrono::seconds(1));// to see the closing outputs
     system("clear");// make this line as comment if you are compiling on Windows
     //system("cls"); // make this line as comment if you are compiling on Linux or Mac
     return EXIT_SUCCESS;
 }
 
 void print_menu(){
-    system("clear");// make this line as comment if you are compiling on Windows
+    //system("clear");// make this line as comment if you are compiling on Windows
     //system("cls"); // make this line as comment if you are compiling on Linux or Mac
     cout << endl << endl;
     cout << "DR CELEBI APPOINTMENT APPLICATION" << endl;
@@ -130,8 +132,6 @@ void add_from_file(string filepath)
     if(!in.is_open())
         cout<<"ERROR: File could not been open"<<endl;
     Task task;
-
-    int n=0;
     while(in.peek() != EOF )
     {
         string name, day, time, priority;
@@ -143,13 +143,11 @@ void add_from_file(string filepath)
         char cstr[name.size() + 1];
         name.copy(cstr, name.size() + 1);
         cstr[name.size()] = '\0';
-        for (int i = 0; i < n; i++)
-            cout << cstr[i];
         task.name=cstr;
         task.day=stoi(day);
         task.time=stoi(time);
         task.priority=stoi(priority);
-
+        cout<<task.name<<" is read from file"<<endl;
         workplan.add(&task);
     }
     in.close();
@@ -220,16 +218,15 @@ void delay_a_task()
         cout << "Invalid input! Try again\nTime (Just enter hour without minutes) :";
     }
 
-    //get the task that you want to suspend
-    Task *oldone;  // Replaced with Task *oldone = new Task();
-    Task *newone=new Task();
     if (day>0 and time>0)
     {
-        oldone=workplan.getTask(day, time);
+        //get the task that you want to suspend
+        Task *oldone=workplan.getTask(day, time);
+        Task *newone=new Task();
         if (oldone!=NULL)
         {
             newone->name=new char [strlen(oldone->name)];
-            strcpy(newone->name, oldone->name); // Changed from newone->name = oldone->name;
+            strcpy(newone->name,oldone->name);
             newone->priority=oldone->priority;
             workplan.checkAvailableNextTimesFor(oldone);
             cout<<workplan.getUsableDay()<<".day and "<<std::setw(2)<<workplan.getUsableTime()<<":00 is the first available day and hour for delaying the task "<<oldone->name<<" that is on "<<oldone->day<<".day at "<<std::setw(2)<< oldone->time <<":00"<<endl;
@@ -237,9 +234,9 @@ void delay_a_task()
             newone->time=workplan.getUsableTime();
             workplan.remove(oldone);
             workplan.add(newone);
-            delete newone->name;
-            delete newone;
         }
+        delete [] newone->name;
+        delete newone;
 
     }
     else
