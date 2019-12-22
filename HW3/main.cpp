@@ -101,6 +101,18 @@ BaseStation* BaseStation::find_path(int target_mh, string *path) {
     return NULL;
 }
 
+void send_message(BaseStation* root, const string * message, int target_id){
+    string path;
+    cout << "Traversing:";
+    BaseStation *tmp = root->find_path(target_id, &path);
+    if (tmp != NULL) {
+        path.insert(0, "To:0");
+        cout << endl << "Message:" << *message << " " << path << " mh_" << target_id << endl;
+    } else {
+        cout << endl << "Can not be reached the mobile host mh_"<< target_id << " at the moment" << endl;
+    }
+}
+
 
 int main(int argc, char *argv[]) {
     fstream messages_file;
@@ -125,10 +137,10 @@ int main(int argc, char *argv[]) {
     while (!network_file.eof()) {
         network_file >> node_type >> id >> parent_id;
         if (node_type == "BS") {
-            BaseStation *tmp = new BaseStation{id, NULL, NULL, NULL};
+            auto *tmp = new BaseStation{id, NULL, NULL, NULL};
             root.add_base_station(tmp, parent_id);
         } else if (node_type == "MH") {
-            MobileHost *tmp = new MobileHost{id, NULL};
+            auto *tmp = new MobileHost{id, NULL};
             root.add_mobile_host(tmp, parent_id);
         } else {
             cerr << "Something went wrong" << endl;
@@ -136,10 +148,18 @@ int main(int argc, char *argv[]) {
         while (network_file.peek() == '\n' || network_file.peek() == '\r')
             network_file.get();
     }
-    string path;
-    cout << "Traversing:";
-    root.find_path(18, &path);
-    path.insert(0, "To:0");
-    cout << endl << path << " mh_" << 18 << endl;
+
+    while (!messages_file.eof()) {
+        string message;
+        int target_id;
+        getline(messages_file, message, '>');
+        messages_file >> target_id;
+
+        send_message(&root, &message, target_id);
+
+        while (messages_file.peek() == '\n' || messages_file.peek() == '\r')
+            messages_file.get();
+    }
+
     return 0;
 }
