@@ -50,6 +50,17 @@ void BaseStation::add_base_station(struct BaseStation * bs, int parent_id) {
     bs->next_sibling = NULL;
 }
 
+void BaseStation::add_mobile_host(struct MobileHost * mh, int parent_id) {
+    BaseStation *parent = find_base_station(parent_id);
+
+    MobileHost *tmp = parent->child_mh_head;
+    while (tmp->next_sibling != NULL)
+        tmp = tmp->next_sibling;
+    tmp->next_sibling = mh;
+    mh->next_sibling = NULL;
+}
+
+
 int main() {
 
     cout << "Its time to starth" << endl;
