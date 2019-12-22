@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <string>
+#include <fstream>
 
 using namespace std;
 
@@ -20,13 +21,16 @@ struct BaseStation {
     BaseStation *next_sibling;
     MobileHost *child_mh_head;
 
-    BaseStation* find_base_station(int id);
-    void add_base_station(BaseStation * bs, int parent_id);
-    void add_mobile_host(MobileHost * mh, int parent_id);
-    int send_message(int target_mh, string *path)
+    BaseStation *find_base_station(int id);
+
+    void add_base_station(BaseStation *bs, int parent_id);
+
+    void add_mobile_host(MobileHost *mh, int parent_id);
+
+    BaseStation *find_path(int target_mh, string *path);
 };
 
-BaseStation* BaseStation::find_base_station(int id) {
+BaseStation *BaseStation::find_base_station(int id) {
     if (this->id == id)
         return this;
 
@@ -71,25 +75,25 @@ void BaseStation::add_mobile_host(MobileHost *mh, int parent_id) {
 
 }
 
-int BaseStation::send_message(int target_mh, std::string *path) {
+BaseStation* BaseStation::find_path(int target_mh, string *path) {
     cout << this->id << " ";
-    if (this->child_mh_head != NULL){
+    if (this->child_mh_head != NULL) {
         MobileHost *traverse = this->child_mh_head;
-        while (traverse != NULL){
+        while (traverse != NULL) {
             if (traverse->id == target_mh)
-                return this->id;
+                return this;
             traverse = traverse->next_sibling;
         }
     }
 
-    if (this->child_bs_head != NULL){
+    if (this->child_bs_head != NULL) {
         BaseStation *traverse = this->child_bs_head;
-        while (traverse != NULL){
-            int tmp = traverse->send_message(target_mh, path);
-            if (tmp != NULL){
-                string text = " " + to_string(tmp);
+        while (traverse != NULL) {
+            BaseStation *tmp = traverse->find_path(target_mh, path);
+            if (tmp != NULL) {
+                string text = " " + to_string(tmp->id);
                 path->insert(0, text);
-                return this->id;
+                return this;
             }
             traverse = traverse->next_sibling;
         }
