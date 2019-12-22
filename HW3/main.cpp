@@ -24,6 +24,22 @@ struct BaseStation {
     void add_mobile_host(MobileHost * mh, int parent_id);
 };
 
+BaseStation* BaseStation::find_base_station(int id) {
+    if (this->id == id)
+        return this;
+
+    if (this->child_bs_head != NULL) {
+        BaseStation *traverse = this->child_bs_head;
+        while (traverse != NULL) {
+            BaseStation *tmp = traverse->find_base_station(id);
+            if (tmp != NULL)
+                return tmp;
+            traverse = traverse->next_sibling;
+        }
+    }
+    return NULL;
+}
+
 
 
 int main() {
