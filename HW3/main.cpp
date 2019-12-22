@@ -28,6 +28,8 @@ struct BaseStation {
     void add_mobile_host(MobileHost *mh, int parent_id);
 
     BaseStation *find_path(int target_mh, string *path);
+
+    void delete_tree();
 };
 
 BaseStation *BaseStation::find_base_station(int id) {
@@ -101,6 +103,23 @@ BaseStation* BaseStation::find_path(int target_mh, string *path) {
     return NULL;
 }
 
+void BaseStation::delete_tree() {
+    while (this->child_bs_head != NULL) {
+        BaseStation *tmp = this->child_bs_head->next_sibling;
+        this->child_bs_head->delete_tree();
+        this->child_bs_head = tmp;
+    }
+
+    while (this->child_mh_head != NULL) {
+        MobileHost *tmp = this->child_mh_head->next_sibling;
+        delete this->child_mh_head;
+        this->child_mh_head = tmp;
+    }
+
+    if (this->id != 0)
+        delete this;
+}
+
 void send_message(BaseStation* root, const string * message, int target_id){
     string path;
     cout << "Traversing:";
@@ -131,17 +150,17 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    BaseStation root = {0, NULL, NULL, NULL};
+    auto *root = new BaseStation{0, NULL, NULL, NULL};
     string node_type;
     int id, parent_id;
     while (!network_file.eof()) {
         network_file >> node_type >> id >> parent_id;
         if (node_type == "BS") {
             auto *tmp = new BaseStation{id, NULL, NULL, NULL};
-            root.add_base_station(tmp, parent_id);
+            root->add_base_station(tmp, parent_id);
         } else if (node_type == "MH") {
             auto *tmp = new MobileHost{id, NULL};
-            root.add_mobile_host(tmp, parent_id);
+            root->add_mobile_host(tmp, parent_id);
         } else {
             cerr << "Something went wrong" << endl;
         }
@@ -155,11 +174,11 @@ int main(int argc, char *argv[]) {
         getline(messages_file, message, '>');
         messages_file >> target_id;
 
-        send_message(&root, &message, target_id);
+        send_message(root, &message, target_id);
 
         while (messages_file.peek() == '\n' || messages_file.peek() == '\r')
             messages_file.get();
     }
-
+    root->delete_tree();
     return 0;
 }
