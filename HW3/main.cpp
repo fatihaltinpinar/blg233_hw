@@ -2,6 +2,7 @@
  *  Student Name:  Fatih Altınpınar
  *  Student ID:    150180707
  *  Date:          22/12/2019
+ *  Used:          C++11
 */
 
 #include <iostream>
