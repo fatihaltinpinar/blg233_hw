@@ -40,7 +40,15 @@ BaseStation* BaseStation::find_base_station(int id) {
     return NULL;
 }
 
+void BaseStation::add_base_station(struct BaseStation * bs, int parent_id) {
+    BaseStation *parent = find_base_station(parent_id);
 
+    BaseStation *tmp = parent->child_bs_head;
+    while (tmp->next_sibling != NULL)
+        tmp = tmp->next_sibling;
+    tmp->next_sibling = bs;
+    bs->next_sibling = NULL;
+}
 
 int main() {
 
