@@ -1,0 +1,10 @@
+BS 1 0
+BS 3 0
+BS 2 1
+BS 4 3
+BS 5 0
+MH 1 2
+MH 2 2
+MH 4 3
+MH 3 3
+MH 5 5
