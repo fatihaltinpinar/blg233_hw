@@ -56,14 +56,19 @@ void BaseStation::add_base_station(BaseStation *bs, int parent_id) {
     }
 }
 
-void BaseStation::add_mobile_host(struct MobileHost * mh, int parent_id) {
+void BaseStation::add_mobile_host(MobileHost *mh, int parent_id) {
     BaseStation *parent = find_base_station(parent_id);
 
     MobileHost *tmp = parent->child_mh_head;
-    while (tmp->next_sibling != NULL)
-        tmp = tmp->next_sibling;
-    tmp->next_sibling = mh;
-    mh->next_sibling = NULL;
+    if (tmp == NULL){
+        parent->child_mh_head = mh;
+    } else {
+        while (tmp->next_sibling != NULL)
+            tmp = tmp->next_sibling;
+        tmp->next_sibling = mh;
+        mh->next_sibling = NULL;
+    }
+
 }
 
 int BaseStation::send_message(int target_mh, std::string *path) {
