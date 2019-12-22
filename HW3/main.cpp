@@ -5,6 +5,7 @@
 */
 
 #include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -22,6 +23,7 @@ struct BaseStation {
     BaseStation* find_base_station(int id);
     void add_base_station(BaseStation * bs, int parent_id);
     void add_mobile_host(MobileHost * mh, int parent_id);
+    int send_message(int target_mh, string *path)
 };
 
 BaseStation* BaseStation::find_base_station(int id) {
@@ -58,6 +60,32 @@ void BaseStation::add_mobile_host(struct MobileHost * mh, int parent_id) {
         tmp = tmp->next_sibling;
     tmp->next_sibling = mh;
     mh->next_sibling = NULL;
+}
+
+int BaseStation::send_message(int target_mh, std::string *path) {
+    cout << this->id << " ";
+    if (this->child_mh_head != NULL){
+        MobileHost *traverse = this->child_mh_head;
+        while (traverse != NULL){
+            if (traverse->id == target_mh)
+                return this->id;
+            traverse = traverse->next_sibling;
+        }
+    }
+
+    if (this->child_bs_head != NULL){
+        BaseStation *traverse = this->child_bs_head;
+        while (traverse != NULL){
+            int tmp = traverse->send_message(target_mh, path);
+            if (tmp != NULL){
+                string text = " " + to_string(tmp);
+                path->insert(0, text);
+                return this->id;
+            }
+            traverse = traverse->next_sibling;
+        }
+    }
+    return NULL;
 }
 
 
