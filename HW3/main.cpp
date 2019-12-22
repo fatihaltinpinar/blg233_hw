@@ -102,8 +102,44 @@ BaseStation* BaseStation::find_path(int target_mh, string *path) {
 }
 
 
-int main() {
+int main(int argc, char *argv[]) {
+    fstream messages_file;
+    fstream network_file;
+    if (argc == 3) {
+        network_file.open(argv[1]);
+        messages_file.open(argv[2]);
 
-    cout << "Its time to starth" << endl;
+        if (!(network_file.is_open() && messages_file.is_open())) {
+            cerr << "One of the files cannot be opened!" << endl;
+            return 1;
+        }
+
+    } else {
+        cerr << "Wrong arguments while running the program" << endl;
+        return 1;
+    }
+
+    BaseStation root = {0, NULL, NULL, NULL};
+    string node_type;
+    int id, parent_id;
+    while (!network_file.eof()) {
+        network_file >> node_type >> id >> parent_id;
+        if (node_type == "BS") {
+            BaseStation *tmp = new BaseStation{id, NULL, NULL, NULL};
+            root.add_base_station(tmp, parent_id);
+        } else if (node_type == "MH") {
+            MobileHost *tmp = new MobileHost{id, NULL};
+            root.add_mobile_host(tmp, parent_id);
+        } else {
+            cerr << "Something went wrong" << endl;
+        }
+        while (network_file.peek() == '\n' || network_file.peek() == '\r')
+            network_file.get();
+    }
+    string path;
+    cout << "Traversing:";
+    root.find_path(18, &path);
+    path.insert(0, "To:0");
+    cout << endl << path << " mh_" << 18 << endl;
     return 0;
 }
